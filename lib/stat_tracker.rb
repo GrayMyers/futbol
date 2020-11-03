@@ -1,7 +1,7 @@
 require_relative './game.rb'
 require_relative './team.rb'
 require_relative './game_team.rb'
-require_relative './count_methods.rb'
+require_relative './mean_methods.rb'
 require_relative './object_data.rb'
 require 'CSV'
 class StatTracker
@@ -9,7 +9,7 @@ class StatTracker
   def initialize(locations)
     @locations = locations
     @object_data = ObjectData.new(self)
-    @count = CountMethods.new(@object_data)
+    @mean = MeanMethods.new(@object_data)
   end
 
   def self.from_csv(locations)
@@ -17,7 +17,7 @@ class StatTracker
   end
 
   def count_of_games_by_season #count_methods
-    @count.count_of_games_by_season
+    @mean.count_of_games_by_season
   end
 
   def retrieve_game_teams
@@ -54,48 +54,23 @@ class StatTracker
   end
 
   def percentage_home_wins
-    (total_home_wins(@object_data.games) / total_games(@object_data.games).to_f).round(2)
+    @mean.percentage_home_wins
   end
 
   def percentage_visitor_wins
-    (total_away_wins(@object_data.games) / total_games(@object_data.games).to_f).round(2)
+    @mean.percentage_away_wins
   end
 
   def percentage_ties
-    (total_ties(@object_data.games) / total_games(@object_data.games).to_f).round(2)
-  end
-
-  def count_of_games_by_season
-    seasons = season_keys(@object_data.games).uniq
-    games_by_season = {}
-    seasons.each do |season|
-      count = 0
-      @object_data.games.each do |game_id, game_obj|
-        count += 1 if season == game_obj.season
-      end
-        games_by_season[season] = count
-    end
-    games_by_season
+    @mean.percentage_ties
   end
 
   def average_goals_per_game
-    (total_goals_by_game(@object_data.games).values.sum / total_goals_by_game(@object_data.games).count.to_f).round(2)
+    @mean.average_goals_per_game
   end
 
   def average_goals_by_season
-    average_goals = {}
-    season_game_count = count_of_games_by_season
-    @object_data.games.each do |game_id, game_obj|
-      if average_goals[game_obj.season].nil?
-        average_goals[game_obj.season] = game_obj.total_goals
-      else
-        average_goals[game_obj.season] += game_obj.total_goals
-      end
-    end
-    average_goals.each do |season, goals|
-      average_goals[season] = (goals.to_f / season_game_count[season]).round(2)
-    end
-    average_goals
+    @mean.average_goals_by_season
   end
 
   def winningest_coach(season)
@@ -127,7 +102,7 @@ class StatTracker
   end
 
   def team_info(team_id)
-    @count.team_info(team_id)
+    @mean.team_info(team_id)
   end
 
   def best_season(team_id)
@@ -147,21 +122,7 @@ class StatTracker
   end
 
   def average_win_percentage(team_id)
-    total_games = 0
-    total_wins = 0
-    @object_data.games.each do |game_id, game|
-      home_team_won = game.home_goals > game.away_goals
-      is_draw = game.home_goals == game.away_goals
-      team_is_home = game.home_team_id == team_id.to_i
-      team_is_playing = team_is_home || game.away_team_id == team_id.to_i
-      if team_is_playing
-        total_games += 1
-        if (home_team_won == team_is_home) && !is_draw
-          total_wins += 1
-        end
-      end
-     end
-     (total_wins / total_games.to_f).floor(2)
+    @mean.average_win_percentage(team_id)
   end
 
   def most_goals_scored(team_id)
@@ -187,7 +148,7 @@ class StatTracker
   end
 
   def count_of_teams
-    @count.count_of_teams
+    @mean.count_of_teams
   end
 
   def best_offense
@@ -216,7 +177,7 @@ class StatTracker
 
   private
   #------------------------------------GAME STATISTICS
-  def total_ties(game_data)
+  def total_ties(game_data) #mean_methods
     ties = 0
     game_data.each do |game_id, game|
       ties += 1 if (game.home_goals == game.away_goals)
@@ -231,7 +192,7 @@ class StatTracker
   end
 
 
-  def total_away_wins(game_data)
+  def total_away_wins(game_data) #mean_methods
     wins = 0
     game_data.each do |game_id, game|
       wins += 1 if (game.home_goals < game.away_goals)
@@ -239,7 +200,7 @@ class StatTracker
     wins
   end
 
-  def total_home_wins(game_data)
+  def total_home_wins(game_data) #mean_methods
     wins = 0
     game_data.each do |game_id, game|
       wins += 1 if (game.home_goals > game.away_goals)
@@ -247,11 +208,11 @@ class StatTracker
     wins
   end
 
-  def total_games(game_data)
+  def total_games(game_data) #mean_methods
     game_data.count
   end
 
-  def total_goals_by_game(game_data)
+  def total_goals_by_game(game_data) #mean_methods
     all_game_scores = {}
     game_data.each do |game_id, game|
       all_game_scores[game_id] = game.total_goals
