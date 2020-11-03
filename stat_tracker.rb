@@ -1,15 +1,17 @@
 require_relative './game.rb'
 require_relative './team.rb'
 require_relative './game_team.rb'
-require_relative './count_methods.rb'
+require_relative './game_statistics.rb'
+require_relative './season_statistics.rb'
+require_relative './team_statistics.rb'
+require_relative './league_statistics.rb'
 require_relative './object_data.rb'
 require 'CSV'
 class StatTracker
   attr_reader :games, :teams, :game_teams
   def initialize(locations)
     @locations = locations
-    @object_data = ObjectData.new(self)
-    @count = CountMethods.new(@object_data)
+    @object_data ||= ObjectData.new(self)
   end
 
   def self.from_csv(locations)
@@ -17,7 +19,16 @@ class StatTracker
   end
 
   def count_of_games_by_season #count_methods
-    @count.count_of_games_by_season
+    seasons = season_keys(@object_data.games).uniq
+    games_by_season = {}
+    seasons.each do |season|
+      count = 0
+      game_data.each do |game_id, game_obj|
+        count += 1 if season == game_obj.season
+      end
+        games_by_season[season] = count
+    end
+    games_by_season
   end
 
   def retrieve_game_teams
@@ -127,7 +138,14 @@ class StatTracker
   end
 
   def team_info(team_id)
-    @count.team_info(team_id)
+    team_data = @object_data.teams[team_id]
+    new_hash = {
+      "franchise_id" => team_data.franchiseId.to_s,
+      "team_name" => team_data.teamName,
+      "abbreviation" => team_data.abbreviation,
+      "link" => team_data.link,
+      "team_id" => team_id
+    }
   end
 
   def best_season(team_id)
@@ -187,7 +205,7 @@ class StatTracker
   end
 
   def count_of_teams
-    @count.count_of_teams
+    @object_data.teams.count
   end
 
   def best_offense

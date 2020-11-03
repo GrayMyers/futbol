@@ -13,4 +13,8 @@ class Game
     @home_goals = row["home_goals"].to_i
   end
 
+  def total_goals 
+    @away_goals + @home_goals
+   end
+
 end
