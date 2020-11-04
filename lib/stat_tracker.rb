@@ -1,25 +1,27 @@
 require_relative './game.rb'
 require_relative './team.rb'
 require_relative './game_team.rb'
-require_relative './game_statistics.rb'
-require_relative './season_statistics.rb'
-require_relative './team_statistics.rb'
-require_relative './league_statistics.rb'
+require_relative './mean_methods.rb'
+require_relative './extrema_methods.rb'
 require_relative './object_data.rb'
 require 'CSV'
 class StatTracker
-  attr_reader :games, :teams, :game_teams
+  attr_reader :games, :teams, :game_teams, :object_data
   def initialize(locations)
     @locations = locations
-    @team_statistics = TeamStatistics.new
-    @season_statistics = SeasonStatistics.new
-    @game_statistics = GameStatistics.new
-    @league_statistics = LeagueStatistics.new
-    @object_data ||= ObjectData.new(self)
+    @object_data = ObjectData.new(self)
+    @mean = MeanMethods.new(@object_data)
+    @extrema = ExtremaMethods.new(@object_data)
   end
+
   def self.from_csv(locations)
     StatTracker.new(locations)
   end
+
+  def count_of_games_by_season #count_methods
+    @mean.count_of_games_by_season
+  end
+
   def retrieve_game_teams
     output_hash = {}
     CSV.foreach(@locations[:game_teams], headers: true) do |row|
@@ -28,6 +30,7 @@ class StatTracker
     end
     output_hash
   end
+
   def retrieve_games
     output_hash = {}
     CSV.foreach(@locations[:games], headers: true) do |row|
@@ -35,6 +38,7 @@ class StatTracker
     end
     output_hash
   end
+
   def retrieve_teams
     output_hash = {}
     CSV.foreach(@locations[:teams], headers: true) do |row|
@@ -42,91 +46,120 @@ class StatTracker
     end
     output_hash
   end
+
   def highest_total_score
-    @game_statistics.highest_total_score(@object_data.games)
+    @extrema.highest_total_score
   end
+
   def lowest_total_score
-     @game_statistics.lowest_total_score(@object_data.games)
+     @extrema.lowest_total_score
   end
+
   def percentage_home_wins
-    @game_statistics.percentage_home_wins(@object_data.games)
+    @mean.percentage_home_wins
   end
+
   def percentage_visitor_wins
-    @game_statistics.percentage_visitor_wins(@object_data.games)
+    @mean.percentage_visitor_wins
   end
+
   def percentage_ties
-    @game_statistics.percentage_ties(@object_data.games)
+    @mean.percentage_ties
   end
-  def count_of_games_by_season
-    @game_statistics.count_of_games_by_season(@object_data.games)
-  end
+
   def average_goals_per_game
-    @game_statistics.average_goals_per_game(@object_data.games)
+    @mean.average_goals_per_game
   end
+
   def average_goals_by_season
-    @game_statistics.average_goals_by_season(@object_data.games)
+    @mean.average_goals_by_season
   end
+
   def winningest_coach(season)
-    @season_statistics.winningest_coach(season, @object_data.games, @object_data.game_teams)
+    @extrema.winningest_coach(season)
   end
+
   def worst_coach(season)
-    @season_statistics.worst_coach(season, @object_data.games, @object_data.game_teams)
+    @extrema.worst_coach(season)
   end
+
   def most_accurate_team(season)
-    @season_statistics.most_accurate_team(season, @object_data.games, @object_data.game_teams, @object_data.teams)
+    @extrema.most_accurate_team(season)
   end
+
   def least_accurate_team(season)
-    @season_statistics.least_accurate_team(season, @object_data.games, @object_data.game_teams, @object_data.teams)
+    @extrema.least_accurate_team(season)
   end
+
   def most_tackles(season)
-    @season_statistics.most_tackles(season, @object_data.games, @object_data.game_teams, @object_data.teams)
+    @extrema.most_tackles(season)
   end
+
   def fewest_tackles(season)
-    @season_statistics.fewest_tackles(season, @object_data.games, @object_data.game_teams, @object_data.teams)
+    @extrema.fewest_tackles(season)
   end
+
   def team_info(team_id)
-    @team_statistics.team_info(@object_data.teams, team_id)
+    @mean.team_info(team_id)
   end
+
   def best_season(team_id)
-    @team_statistics.best_season(@object_data.games, "6")
+    @extrema.best_season(team_id)
   end
+
   def worst_season(team_id)
-    @team_statistics.worst_season(@object_data.games, "6")
+    @extrema.worst_season(team_id)
   end
+
   def average_win_percentage(team_id)
-    @team_statistics.average_win_percentage(@object_data.games, "6")
+    @mean.average_win_percentage(team_id)
   end
+
   def most_goals_scored(team_id)
-    @team_statistics.most_goals_scored(@object_data.games, team_id)
+    @extrema.most_goals_scored(team_id)
   end
+
   def fewest_goals_scored(team_id)
-    @team_statistics.fewest_goals_scored(@object_data.games, team_id)
+    @extrema.fewest_goals_scored(team_id)
   end
+
   def favorite_opponent(team_id)
-    @team_statistics.favorite_opponent(@object_data.games, @object_data.teams, team_id)
+    @extrema.favorite_opponent(team_id)
   end
+
+  def total_goals_by_game
+    @extrema.total_goals_by_game
+  end
+
   def rival(team_id)
-    @team_statistics.rival(@object_data.games, @object_data.teams, team_id)
+    @extrema.rival(team_id)
   end
+
   def count_of_teams
-    @league_statistics.count_of_teams(@object_data.teams)
+    @mean.count_of_teams
   end
+
   def best_offense
-    @league_statistics.best_offense(@object_data.game_teams,@object_data.teams)
+    @extrema.best_offense
   end
+
   def worst_offense
-    @league_statistics.worst_offense(@object_data.game_teams,@object_data.teams)
+    @extrema.worst_offense
   end
+
   def highest_scoring_visitor
-    @league_statistics.highest_scoring_visitor(@object_data.games,@object_data.teams)
+    @extrema.highest_scoring_visitor
   end
+
   def highest_scoring_home_team
-    @league_statistics.highest_scoring_home_team(@object_data.games,@object_data.teams)
+    @extrema.highest_scoring_home_team
   end
+
   def lowest_scoring_visitor
-    @league_statistics.lowest_scoring_visitor(@object_data.games,@object_data.teams)
+    @extrema.lowest_scoring_visitor
   end
+
   def lowest_scoring_home_team
-    @league_statistics.lowest_scoring_home_team(@object_data.games,@object_data.teams)
+    @extrema.lowest_scoring_home_team
   end
 end
