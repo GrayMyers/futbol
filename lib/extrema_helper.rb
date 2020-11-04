@@ -20,11 +20,11 @@ class ExtremaHelper
 
   def best_worst_offense_defense(highest = true,hoa = "home") #best_worst_offense_defense
     if highest
-      a = hoa_goals_for_team(hoa).max_by do |team_id, goals_and_games|
+      hoa_goals_for_team(hoa).max_by do |team_id, goals_and_games|
         goal_to_game_ratio(goals_and_games)
       end[0]
     else
-      b = hoa_goals_for_team(hoa).min_by do |team_id, goals_and_games|
+      hoa_goals_for_team(hoa).min_by do |team_id, goals_and_games|
         goal_to_game_ratio(goals_and_games)
       end[0]
     end
@@ -114,10 +114,10 @@ class ExtremaHelper
           @object_data.game_teams[game_id_str].each do |hoa, game_team_obj|
             tackles_count[game_team_obj.team_id] += game_team_obj.tackles
           end
-        end
       end
-      tackles_count
     end
+    tackles_count
+  end
 
     def add_wins_and_losses(team_id) #best_season, worst_season
       win_percent_by_season = Hash.new{|hash,key|hash[key] = {wins: 0, total: 0}}
@@ -156,8 +156,8 @@ class ExtremaHelper
             goals_and_games[game_obj.team_id][:games] += 1
           end
         end
-        goals_and_games
-      end
+      goals_and_games
+    end
 
       def goal_to_game_ratio(hash)
         hash[:goals].to_f / hash[:games]

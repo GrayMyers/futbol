@@ -1,10 +1,11 @@
 require_relative './game.rb'
 require_relative './team.rb'
 require_relative './game_team.rb'
-require_relative './mean_methods.rb'
-require_relative './extrema_methods.rb'
+require_relative './mean.rb'
+require_relative './extrema.rb'
 require_relative './object_data.rb'
 require 'CSV'
+
 class StatTracker
   attr_reader :games, :teams, :game_teams, :object_data
   def initialize(locations)

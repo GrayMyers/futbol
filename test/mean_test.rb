@@ -7,8 +7,8 @@ locations = {
   teams: team_path,
   game_teams: game_teams_path
 }
-STAT_TRACKER = StatTracker.new(locations)
-OBJECT_DATA = STAT_TRACKER.object_data
+STAT_TRACKER ||= StatTracker.new(locations)
+OBJECT_DATA ||= STAT_TRACKER.object_data
 
 class MeanMethodsTest < Minitest::Test
   def setup

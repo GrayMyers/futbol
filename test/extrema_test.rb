@@ -7,8 +7,9 @@ locations = {
   teams: team_path,
   game_teams: game_teams_path
 }
-STAT_TRACKER = StatTracker.new(locations)
-OBJECT_DATA = STAT_TRACKER.object_data
+STAT_TRACKER ||= StatTracker.new(locations)
+OBJECT_DATA ||= STAT_TRACKER.object_data
+
 class ExtremaMethodsTest < Minitest::Test
   def setup
     @stat_tracker = STAT_TRACKER
@@ -118,12 +119,12 @@ class ExtremaMethodsTest < Minitest::Test
     assert_equal "Columbus Crew SC", @extrema.least_accurate_team("20142015")
   end
 
-  def least_accurate_team_id
+  def test_least_accurate_team_id
     assert_equal 9, @extrema.least_accurate_team_id("20132014")
     assert_equal 53, @extrema.least_accurate_team_id("20142015")
   end
 
-  def most_accurate_team_id
+  def test_most_accurate_team_id
     assert_equal 24, @extrema.most_accurate_team_id("20132014")
     assert_equal 20, @extrema.most_accurate_team_id("20142015")
   end
