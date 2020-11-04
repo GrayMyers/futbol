@@ -1,15 +1,15 @@
 require_relative './game.rb'
 require_relative './team.rb'
 require_relative './game_team.rb'
-require_relative './mean_methods.rb'
-require_relative './extrema_methods.rb'
+require_relative './mean.rb'
+require_relative './extrema.rb'
 require_relative './object_data.rb'
-require 'CSV'
+
 class StatTracker
   attr_reader :games, :teams, :game_teams, :object_data
   def initialize(locations)
     @locations = locations
-    @object_data = ObjectData.new(self)
+    @object_data = ObjectData.new(locations)
     @mean = MeanMethods.new(@object_data)
     @extrema = ExtremaMethods.new(@object_data)
   end
@@ -20,31 +20,6 @@ class StatTracker
 
   def count_of_games_by_season #count_methods
     @mean.count_of_games_by_season
-  end
-
-  def retrieve_game_teams
-    output_hash = {}
-    CSV.foreach(@locations[:game_teams], headers: true) do |row|
-      output_hash[row["game_id"]] = {} if !output_hash[row["game_id"]]
-      output_hash[row["game_id"]][row["HoA"]] = GameTeam.new(row)
-    end
-    output_hash
-  end
-
-  def retrieve_games
-    output_hash = {}
-    CSV.foreach(@locations[:games], headers: true) do |row|
-      output_hash[row["game_id"]] = Game.new(row)
-    end
-    output_hash
-  end
-
-  def retrieve_teams
-    output_hash = {}
-    CSV.foreach(@locations[:teams], headers: true) do |row|
-      output_hash[row["team_id"]] = Team.new(row)
-    end
-    output_hash
   end
 
   def highest_total_score
@@ -162,4 +137,5 @@ class StatTracker
   def lowest_scoring_home_team
     @extrema.lowest_scoring_home_team
   end
+  
 end
