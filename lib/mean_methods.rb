@@ -7,7 +7,7 @@ class MeanMethods
     (total_home_wins / total_games.to_f).round(2)
   end
 
-  def percentage_away_wins
+  def percentage_visitor_wins
     (total_away_wins / total_games.to_f).round(2)
   end
 
