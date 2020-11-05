@@ -6,7 +6,7 @@ require_relative './extrema.rb'
 require_relative './object_data.rb'
 
 class StatTracker
-  attr_reader :games, :teams, :game_teams, :object_data
+  attr_reader :games, :teams, :game_teams, :object_data, :mean, :extrema
   def initialize(locations)
     @locations = locations
     @object_data = ObjectData.new(locations)
@@ -137,5 +137,5 @@ class StatTracker
   def lowest_scoring_home_team
     @extrema.lowest_scoring_home_team
   end
-  
+
 end
