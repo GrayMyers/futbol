@@ -1,7 +1,7 @@
 require 'CSV'
 
 class ObjectData
-  attr_reader :games, :teams, :game_teams
+  attr_reader :games, :teams, :game_teams, :locations
   def initialize(locations)
     @locations = locations
     @games = retrieve_games
